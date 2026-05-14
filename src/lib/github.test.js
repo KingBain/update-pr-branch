@@ -555,6 +555,64 @@ describe('getAutoUpdateCandidate()', () => {
     expect(utils.log).toHaveBeenCalledWith('Count of PRs with included labels: 2');
   });
 
+
+  test('filterPRsByExcludedLabels should filter out PRs with excluded labels', () => {
+    const prWithLabelA = {
+      ...pullsList.data[0],
+      labels: [{ name: 'label-a' }],
+    };
+    const prWithLabelB = {
+      ...pullsList.data[0],
+      labels: [{ name: 'label-b' }],
+    };
+    const prNoLabels = {
+      ...pullsList.data[0],
+      labels: [],
+    };
+
+    const prs = [prWithLabelA, prWithLabelB, prNoLabels];
+
+    core.getInput.mockImplementation((name) => {
+      if (name === 'excluded_labels') return 'label-a';
+      return '';
+    });
+
+    const filteredPRs = gitLib.filterPRsByExcludedLabels(prs);
+    expect(filteredPRs.length).toBe(2);
+    expect(filteredPRs).not.toContain(prWithLabelA);
+    expect(filteredPRs).toContain(prWithLabelB);
+    expect(filteredPRs).toContain(prNoLabels);
+    expect(utils.log).toHaveBeenCalledWith(
+      'Count of PRs without excluded labels: 2',
+    );
+  });
+
+  test('filterPRsByExcludedLabels should handle whitespace and empty values', () => {
+    const prWithLabelA = {
+      ...pullsList.data[0],
+      labels: [{ name: 'label-a' }],
+    };
+    const prWithLabelB = {
+      ...pullsList.data[0],
+      labels: [{ name: 'label-b' }],
+    };
+
+    core.getInput.mockImplementation((name) => {
+      if (name === 'excluded_labels') return ' label-a , ';
+      return '';
+    });
+
+    const filteredPRs = gitLib.filterPRsByExcludedLabels([
+      prWithLabelA,
+      prWithLabelB,
+    ]);
+    expect(filteredPRs.length).toBe(1);
+    expect(filteredPRs).toContain(prWithLabelB);
+    expect(utils.log).toHaveBeenCalledWith(
+      'Count of PRs without excluded labels: 1',
+    );
+  });
+
   // Tests for filterPRsByAutoMerge
   test('filterPRsByAutoMerge should filter out PRs without auto-merge enabled', () => {
     // Create PR items with different auto-merge status
@@ -639,22 +697,24 @@ describe('getAutoUpdateCandidate()', () => {
       prWithoutLabelWithoutAutoMerge
     ];
     
-    // Test with label filter and require auto-merge
+    // Test with include/exclude label filters and require auto-merge
     core.getInput.mockImplementation((name) => {
-      if (name === 'included_labels') return 'label-a';
+      if (name === 'included_labels') return 'label-a,label-b';
+      if (name === 'excluded_labels') return 'label-b';
       if (name === 'require_auto_merge_enabled') return 'true';
       return '';
     });
     
     const filteredPRs = gitLib.filterApplicablePRs(prs);
-    expect(filteredPRs.length).toBe(1); // Should only include PR with label-a AND auto-merge
+    expect(filteredPRs.length).toBe(1); // Should only include PR with label-a, no excluded labels, AND auto-merge
     expect(filteredPRs).toContain(prWithLabelWithAutoMerge);
     expect(filteredPRs).not.toContain(prWithLabelWithoutAutoMerge);
     expect(filteredPRs).not.toContain(prWithoutLabelWithAutoMerge);
     expect(filteredPRs).not.toContain(prWithoutLabelWithoutAutoMerge);
     
     // Should log both counts
-    expect(utils.log).toHaveBeenCalledWith('Count of PRs with included labels: 2');
+    expect(utils.log).toHaveBeenCalledWith('Count of PRs with included labels: 4');
+    expect(utils.log).toHaveBeenCalledWith('Count of PRs without excluded labels: 2');
     expect(utils.log).toHaveBeenCalledWith('Count of auto-merge enabled PRs: 1');
   });
 
