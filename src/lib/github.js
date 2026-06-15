@@ -166,9 +166,9 @@ export const getApprovalStatus = async (pullNumber) => {
 };
 
 /**
- * Filter PRs based on their labels
+ * Filter PRs based on their included labels
  * @param {Array} prs - List of PRs
- * @returns {Array} - Filtered PRs based on labels
+ * @returns {Array} - Filtered PRs based on included labels
  */
 const parseLabelInput = (value) => {
   return (value || '')
