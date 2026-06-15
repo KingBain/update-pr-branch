@@ -561,6 +561,31 @@ describe('getAutoUpdateCandidate()', () => {
     );
   });
 
+  test('filterPRsByIncludedLabels should be case-insensitive', () => {
+    const prWithMixedCaseLabel = {
+      ...pullsList.data[0],
+      labels: [{ name: 'Feature-Request' }],
+    };
+    const prWithDifferentLabel = {
+      ...pullsList.data[0],
+      labels: [{ name: 'bug' }],
+    };
+
+    const prs = [prWithMixedCaseLabel, prWithDifferentLabel];
+
+    // Simulate config with lowercase input
+    core.getInput.mockImplementation((name) => {
+      if (name === 'included_labels') return 'feature-request';
+      return '';
+    });
+
+    const filteredPRs = gitLib.filterPRsByIncludedLabels(prs);
+
+    // Verification
+    expect(filteredPRs.length).toBe(1);
+    expect(filteredPRs).toContain(prWithMixedCaseLabel);
+  });
+
   test('filterPRsByExcludedLabels should filter out PRs with excluded labels', () => {
     const prWithLabelA = {
       ...pullsList.data[0],
