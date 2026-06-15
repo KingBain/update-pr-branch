@@ -166,14 +166,14 @@ export const getApprovalStatus = async (pullNumber) => {
 };
 
 /**
- * Filter PRs based on their labels
+ * Filter PRs based on their included labels
  * @param {Array} prs - List of PRs
- * @returns {Array} - Filtered PRs based on labels
+ * @returns {Array} - Filtered PRs based on included labels
  */
 const parseLabelInput = (value) => {
   return (value || '')
     .split(',')
-    .map((label) => label.trim())
+    .map((label) => label.trim().toLowerCase())
     .filter((label) => label !== '');
 };
 
@@ -184,7 +184,9 @@ export const filterPRsByIncludedLabels = (prs) => {
   }
 
   const filteredPRs = prs.filter((item) => {
-    return item.labels.some((label) => includedLabelsArray.includes(label.name));
+    return (item.labels || []).some((label) =>
+      includedLabelsArray.includes(label.name.toLowerCase()),
+    );
   });
 
   log(`Count of PRs with included labels: ${filteredPRs.length}`);
@@ -203,7 +205,9 @@ export const filterPRsByExcludedLabels = (prs) => {
   }
 
   const filteredPRs = prs.filter((item) => {
-    return !item.labels.some((label) => excludedLabelsArray.includes(label.name));
+    return !(item.labels || []).some((label) =>
+      excludedLabelsArray.includes(label.name.toLowerCase()),
+    );
   });
 
   log(`Count of PRs without excluded labels: ${filteredPRs.length}`);
@@ -219,11 +223,11 @@ export const filterPRsByAutoMerge = (prs) => {
   const includeNonAutoMergePRs = isStringFalse(
     core.getInput('require_auto_merge_enabled'),
   );
-  
+
   if (includeNonAutoMergePRs) {
     return prs;
   }
-  
+
   const autoMergeEnabledPRs = prs.filter((item) => item.auto_merge);
   log(`Count of auto-merge enabled PRs: ${autoMergeEnabledPRs.length}`);
   return autoMergeEnabledPRs;
@@ -231,7 +235,7 @@ export const filterPRsByAutoMerge = (prs) => {
 
 export const filterApplicablePRs = (openPRs) => {
   // First filter by included labels
-  const includedLabelFilteredPRs = filterPRsByLabels(openPRs);
+  const includedLabelFilteredPRs = filterPRsByIncludedLabels(openPRs);
 
   // Then filter out excluded labels
   const excludedLabelFilteredPRs = filterPRsByExcludedLabels(
