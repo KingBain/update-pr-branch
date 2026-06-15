@@ -433,8 +433,8 @@ describe('getAutoUpdateCandidate()', () => {
     expect(res).toBe(null);
   });
 
-  // Tests for filterPRsByLabels
-  test('filterPRsByLabels should filter by included labels when provided', () => {
+  // Tests for filterPRsByIncludedLabels
+  test('filterPRsByIncludedLabels should filter by included labels when provided', () => {
     // Create PR items with labels
     const prWithLabelA = { 
       ...pullsList.data[0], 
@@ -461,7 +461,7 @@ describe('getAutoUpdateCandidate()', () => {
       return '';
     });
     
-    const filteredPRs = gitLib.filterPRsByLabels(prs);
+    const filteredPRs = gitLib.filterPRsByIncludedLabels(prs);
     expect(filteredPRs.length).toBe(2); // Should include prWithLabelA and prWithBothLabels
     expect(filteredPRs).toContain(prWithLabelA);
     expect(filteredPRs).toContain(prWithBothLabels);
@@ -470,7 +470,7 @@ describe('getAutoUpdateCandidate()', () => {
     expect(utils.log).toHaveBeenCalledWith('Count of PRs with included labels: 2');
   });
 
-  test('filterPRsByLabels should filter by multiple included labels when provided', () => {
+  test('filterPRsByIncludedLabels should filter by multiple included labels when provided', () => {
     // Create PR items with labels
     const prWithLabelA = { 
       ...pullsList.data[0], 
@@ -497,7 +497,7 @@ describe('getAutoUpdateCandidate()', () => {
       return '';
     });
     
-    const filteredPRs = gitLib.filterPRsByLabels(prs);
+    const filteredPRs = gitLib.filterPRsByIncludedLabels(prs);
     expect(filteredPRs.length).toBe(2); // Should include prWithLabelA and prWithLabelB
     expect(filteredPRs).toContain(prWithLabelA);
     expect(filteredPRs).toContain(prWithLabelB);
@@ -506,7 +506,7 @@ describe('getAutoUpdateCandidate()', () => {
     expect(utils.log).toHaveBeenCalledWith('Count of PRs with included labels: 2');
   });
 
-  test('filterPRsByLabels should not filter when included_labels is empty', () => {
+  test('filterPRsByIncludedLabels should not filter when included_labels is empty', () => {
     // Create PR items with labels
     const prWithLabel = { 
       ...pullsList.data[0], 
@@ -525,13 +525,13 @@ describe('getAutoUpdateCandidate()', () => {
       return '';
     });
     
-    const filteredPRs = gitLib.filterPRsByLabels(prs);
+    const filteredPRs = gitLib.filterPRsByIncludedLabels(prs);
     expect(filteredPRs.length).toBe(2); // Should include both PRs
     // We shouldn't log the label count if we're not filtering by labels
     expect(utils.log).not.toHaveBeenCalledWith(expect.stringMatching(/Count of PRs with included labels/));
   });
 
-  test('filterPRsByLabels should handle labels with whitespace', () => {
+  test('filterPRsByIncludedLabels should handle labels with whitespace', () => {
     // Create PR items with labels
     const prWithLabelA = { 
       ...pullsList.data[0], 
@@ -550,7 +550,7 @@ describe('getAutoUpdateCandidate()', () => {
       return '';
     });
     
-    const filteredPRs = gitLib.filterPRsByLabels(prs);
+    const filteredPRs = gitLib.filterPRsByIncludedLabels(prs);
     expect(filteredPRs.length).toBe(2); // Should handle whitespace correctly
     expect(utils.log).toHaveBeenCalledWith('Count of PRs with included labels: 2');
   });

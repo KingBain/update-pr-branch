@@ -31323,7 +31323,7 @@ const getApprovalStatus = async (pullNumber) => {
  * @param {Array} prs - List of PRs
  * @returns {Array} - Filtered PRs based on labels
  */
-const filterPRsByLabels = (prs) => {
+const filterPRsByIncludedLabels = (prs) => {
   const includedLabels = github_core.getInput('included_labels') || '';
   const includedLabelsArray = includedLabels.split(',').map((label) => label.trim()).filter(label => label !== '');
   if (includedLabelsArray.length === 0 || !includedLabels) {
@@ -31359,7 +31359,7 @@ const filterPRsByAutoMerge = (prs) => {
 
 const filterApplicablePRs = (openPRs) => {
   // First filter by labels
-  const labelFilteredPRs = filterPRsByLabels(openPRs);
+  const labelFilteredPRs = filterPRsByIncludedLabels(openPRs);
   
   // Then filter by auto-merge status
   return filterPRsByAutoMerge(labelFilteredPRs);
