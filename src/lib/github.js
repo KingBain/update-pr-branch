@@ -177,7 +177,7 @@ const parseLabelInput = (value) => {
     .filter((label) => label !== '');
 };
 
-export const filterPRsByLabels = (prs) => {
+export const filterPRsByIncludedLabels = (prs) => {
   const includedLabelsArray = parseLabelInput(core.getInput('included_labels'));
   if (includedLabelsArray.length === 0) {
     return prs;
