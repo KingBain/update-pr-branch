@@ -235,7 +235,7 @@ export const filterPRsByAutoMerge = (prs) => {
 
 export const filterApplicablePRs = (openPRs) => {
   // First filter by included labels
-  const includedLabelFilteredPRs = filterPRsByLabels(openPRs);
+  const includedLabelFilteredPRs = filterPRsByIncludedLabels(openPRs);
 
   // Then filter out excluded labels
   const excludedLabelFilteredPRs = filterPRsByExcludedLabels(
