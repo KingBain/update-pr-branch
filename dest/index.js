@@ -31337,7 +31337,9 @@ const filterPRsByIncludedLabels = (prs) => {
   }
 
   const filteredPRs = prs.filter((item) => {
-    return item.labels.some((label) => includedLabelsArray.includes(label.name));
+    return item.labels.some((label) =>
+      includedLabelsArray.includes(label.name),
+    );
   });
 
   log(`Count of PRs with included labels: ${filteredPRs.length}`);
@@ -31356,7 +31358,9 @@ const filterPRsByExcludedLabels = (prs) => {
   }
 
   const filteredPRs = prs.filter((item) => {
-    return !item.labels.some((label) => excludedLabelsArray.includes(label.name));
+    return !item.labels.some((label) =>
+      excludedLabelsArray.includes(label.name),
+    );
   });
 
   log(`Count of PRs without excluded labels: ${filteredPRs.length}`);
@@ -31372,11 +31376,11 @@ const filterPRsByAutoMerge = (prs) => {
   const includeNonAutoMergePRs = isStringFalse(
     github_core.getInput('require_auto_merge_enabled'),
   );
-  
+
   if (includeNonAutoMergePRs) {
     return prs;
   }
-  
+
   const autoMergeEnabledPRs = prs.filter((item) => item.auto_merge);
   log(`Count of auto-merge enabled PRs: ${autoMergeEnabledPRs.length}`);
   return autoMergeEnabledPRs;
@@ -31384,7 +31388,7 @@ const filterPRsByAutoMerge = (prs) => {
 
 const filterApplicablePRs = (openPRs) => {
   // First filter by included labels
-  const includedLabelFilteredPRs = filterPRsByLabels(openPRs);
+  const includedLabelFilteredPRs = filterPRsByIncludedLabels(openPRs);
 
   // Then filter out excluded labels
   const excludedLabelFilteredPRs = filterPRsByExcludedLabels(
